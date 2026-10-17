@@ -47,5 +47,13 @@ class Doctor extends Model
         return $query->where('status', 'approved');
     }
 
-   
+    public function approve(): void
+    {
+        $this->forceFill(['status' => 'approved'])->save();
+    }
+
+    public function suspend(): void
+    {
+        $this->forceFill(['status' => 'suspended'])->save();
+    }
 }

@@ -7,10 +7,7 @@ use App\Models\User;
 
 class AppointmentPolicy
 {
-    public function view(User $user, Appointment $appointment): bool
-    {
-        return $appointment->patient_id === $user->id;
-    }
+    
 
     public function cancel(User $user, Appointment $appointment): bool
     {
@@ -21,5 +18,14 @@ class AppointmentPolicy
     {
         return $user->role === 'doctor'
             && $user->doctor?->id === $appointment->doctor_id;
+    }
+    public function viewAny(User $user): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function view(User $user, Appointment $appointment): bool
+    {
+        return $user->role === 'admin' || $appointment->patient_id === $user->id;
     }
 }

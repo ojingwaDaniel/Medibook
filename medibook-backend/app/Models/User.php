@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Doctor;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -53,5 +55,20 @@ class User extends Authenticatable
         abort_if($doctor->status === 'suspended', 403, 'Your doctor account is suspended.');
 
         return $doctor;
+    }
+     public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->role === 'admin' && $this->is_active;
+    }
+
+    public function deactivate(): void
+    {
+        $this->forceFill(['is_active' => false])->save();
+        $this->tokens()->delete(); // logs them out of the mobile app immediately
+    }
+
+    public function activate(): void
+    {
+        $this->forceFill(['is_active' => true])->save();
     }
 }
